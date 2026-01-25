@@ -1,0 +1,8 @@
+# frontend
+client/
+
+# dependencies
+node_modules/
+
+# environment
+.env
