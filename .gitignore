@@ -1,8 +1,21 @@
-# frontend
-client/
-
-# dependencies
-node_modules/
-
-# environment
+# ENV files
 .env
+client/.env
+server/.env
+
+# Node
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Build
+dist/
+build/
+client/dist/
+client/build/
+
+# Logs & OS
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.vscode/

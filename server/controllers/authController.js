@@ -109,106 +109,49 @@ export const logout = async (req, res) => {
   }
 };
 
-//Send Verify OTP to the user's Email
-// export const sendVerifyOtp = async (req, res) => {
-//     try {
-//          const {userId} = req.body;
-
-//          const user = await userModel.findById(userId);
-//             if(!user.isAccoutVerified){
-//                 return res.status(400).json({success:false, message:"User is already verified"});
-//             } 
-//         // Generate OTP
-//        const otp =String (Math.floor(100000 +  Math.random() * 900000));
-
-//        user.verifyOtp = otp;
-//        user.verifyOtpExpireAt = Date.now() + 24 * 60 * 60 * 1000; // OTP valid for 24 hours
-//          await user.save();
-//          const mailOptions = {
-//         from: process.env.SENDER_EMAIL,
-//         to: user.email,
-//         subject: "Your Account Verification OTP",
-//         text: `Hello ${user.name},\n\nYour OTP for account verification is: ${otp}\nThis OTP is valid for 24 hours.\n\nBest regards,\nThe Team`,
-//     };
-//     await transporter.sendMail(mailOptions, (error, info) => {
-//         if (error) {
-//             console.log("Error sending email:", error)
-//             } else {
-//                 console.log("Email sent successfully:", info.response)
-//                 }
-//                 });
-//         return res.status(200).json({success:true, message:"OTP sent to your email for verification"});
-
-//     }catch (error) {
-//         return res.status(500).json({ success: false, message: error.message });
-//     }
-// }
+// Send Verify OTP to the user's Email
 export const sendVerifyOtp = async (req, res) => {
-  try {
-    const { email } = req.body;
+    try {
+        //  const {userId} = req.body;
+        const userId = req.userId;
 
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: "Email is required"
-      });
-    }
 
-    const user = await userModel.findOne({ email });
+         const user = await userModel.findById(userId);
+            if(user.isAccountVerified){
+                return res.status(400).json({success:false, message:"User is already verified"});
+            } 
+        // Generate OTP
+       const otp =String (Math.floor(100000 +  Math.random() * 900000));
 
-    if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: "User does not exist"
-      });
-    }
-
-    if (user.isAccountVerified) {
-      return res.status(400).json({
-        success: false,
-        message: "User is already verified"
-      });
-    }
-
-    const otp = String(Math.floor(100000 + Math.random() * 900000));
-
-    user.verifyOtp = otp;
-    user.verifyOtpExpireAt = Date.now() + 24 * 60 * 60 * 1000;
-    await user.save();
-
-    const mailOptions = {
-      from: process.env.SENDER_EMAIL,
-      to: user.email,
-      subject: "Your Account Verification OTP",
-      text: `Hello ${user.name},
-
-Your OTP for account verification is: ${otp}
-This OTP is valid for 24 hours.
-
-Best regards,
-The Team`
+       user.verifyOtp = otp;
+       user.verifyOtpExpireAt = Date.now() + 24 * 60 * 60 * 1000; // OTP valid for 24 hours
+         await user.save();
+         const mailOptions = {
+        from: process.env.SENDER_EMAIL,
+        to: user.email,
+        subject: "Your Account Verification OTP",
+        text: `Hello ${user.name},\n\nYour OTP for account verification is: ${otp}\nThis OTP is valid for 24 hours.\n\nBest regards,\nThe Team`,
     };
+    await transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log("Error sending email:", error)
+            } else {
+                console.log("Email sent successfully:", info.response)
+                }
+                });
+        return res.status(200).json({success:true, message:"OTP sent to your email for verification"});
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log("Email sent successfully:", info.response);
-
-    return res.status(200).json({
-      success: true,
-      message: "OTP sent to your email for verification"
-    });
-
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
-};
+    }catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+}
 
 //Verify User Email with OTP
 
 export const verifyEmail = async (req, res) => {
-   const {userId, otp} = req.body;
+  //  const {userId, otp} = req.body;
+     const userId = req.userId;   // ✅ from JWT middleware
+  const { otp } = req.body;    // ✅ from request body
    if(!userId || !otp){
     return res.status(400).json({success:false, message:"Details missing, All fields are required"});
     }   
@@ -223,7 +166,7 @@ export const verifyEmail = async (req, res) => {
         if(user.verifyOtpExpireAt < Date.now()){
             return res.status(400).json({success:false, message:"OTP has expired"});
         }   
-         user.isAccoutVerified = true;  
+         user.isAccountVerified = true;  
             user.verifyOtp = '';
             user.verifyOtpExpireAt = 0;
 
