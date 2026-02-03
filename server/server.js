@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 connectDB();
 
-const allowedOrigins = ['http://localhost:5173'];
+const allowedOrigins = ['https://authentication-frontend-dsav.onrender.com'];
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
